@@ -1,8 +1,21 @@
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
+const morgan = require("morgan");
 
 app.use(bodyParser.json());
+
+morgan.token("body", (req, res) => {
+  if (req.method === "POST") {
+    return JSON.stringify(req.body);
+  }
+
+  return "";
+});
+
+app.use(
+  morgan(":method :url :status :res[content-length] - :response-time ms :body")
+);
 
 const generateId = () => {
   return Math.floor(Math.random() * 999999) + 1;
@@ -57,7 +70,6 @@ app.get("/api/persons/:id", (req, res) => {
 });
 
 app.post("/api/persons", (req, res) => {
-  console.log(req.body);
   const body = req.body;
 
   if (!body.name || !body.number) {
